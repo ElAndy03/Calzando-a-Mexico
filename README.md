@@ -39,3 +39,38 @@ El sistema propuesto no es un punto de venta, sino una herramienta administrativ
 - Interfaz simple y enfocada en la trazabilidad del producto.  
 
 ---
+calzando-inventario/
+├── src/                 
+│   ├── database/       
+│   ├── modules/         
+│   └── app.py          
+├── docs/                
+├── tests/               
+├── .gitignore          
+├── LICENSE              
+└── README.md     
+
+## Base de Datos
+La base de datos almacena toda la información proveniente de la empresa, incluyendo:
+- Tiendas  
+- Productos (modelo, talla, tipo, estado)  
+- Movimientos de inventario (entradas y salidas)  
+- Usuarios del sistema (vendedores, gerentes, supervisores)
+
+- ## Tecnologías Utilizadas
+- MySQL — gestión y almacenamiento de datos.  
+- Python — backend para manejo de registros.  
+- GitHub — control de versiones.
+
+- ## Resultados Esperados
+- Eliminación de productos fantasma mediante control cruzado de entradas y salidas.  
+- Actualización continua del inventario real por tienda.  
+- Disminución de mermas no registradas.  
+- Mayor transparencia y trazabilidad en el flujo de productos.  
+- Base sólida para una futura integración con el punto de venta o ERP.
+
+**Autores:**  
+- Andrés Domínguez Morales
+- Berenice Chavez Bedoya
+- Gamaliel Callejas Maceda 
+- Sherlin Citlalli Martinez Olvera
