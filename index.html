@@ -1,0 +1,2588 @@
+<!doctype html>
+<html lang="es">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SmartInventory LDM - Sistema Logístico</title>
+  <style>
+    body {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #1a4d2e 0%, #2d5f3f 100%);
+      height: 100%;
+      overflow: hidden;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    .screen {
+      display: none;
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      top: 0;
+      left: 0;
+      animation: fadeIn 0.5s ease-in-out;
+    }
+
+    .screen.active {
+      display: flex;
+      flex-direction: column;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Login Screen */
+    .login-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      padding: 20px;
+      position: relative;
+    }
+
+    .login-background {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(135deg, #1a4d2e 0%, #2d5f3f 50%, #1a4d2e 100%);
+      overflow: hidden;
+    }
+
+    .warehouse-pattern {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-image: 
+        linear-gradient(45deg, rgba(255,255,255,0.05) 25%, transparent 25%),
+        linear-gradient(-45deg, rgba(255,255,255,0.05) 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, rgba(255,255,255,0.05) 75%),
+        linear-gradient(-45deg, transparent 75%, rgba(255,255,255,0.05) 75%);
+      background-size: 60px 60px;
+      background-position: 0 0, 0 30px, 30px -30px, -30px 0px;
+      animation: movePattern 20s linear infinite;
+    }
+
+    @keyframes movePattern {
+      0% { transform: translateX(0) translateY(0); }
+      100% { transform: translateX(60px) translateY(60px); }
+    }
+
+    .login-box {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      padding: 40px;
+      border-radius: 24px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      width: 100%;
+      max-width: 480px;
+      text-align: center;
+      position: relative;
+      z-index: 10;
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+
+    .logo-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .logo {
+      width: 80px;
+      height: 80px;
+      background: linear-gradient(135deg, #1a4d2e, #d4af37);
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 36px;
+      box-shadow: 0 8px 25px rgba(26, 77, 46, 0.3);
+    }
+
+    .logo-text h1 {
+      color: #1a4d2e;
+      margin: 0;
+      font-size: 24px;
+      font-weight: 700;
+      text-align: left;
+    }
+
+    .logo-text p {
+      color: #d4af37;
+      margin: 4px 0 0 0;
+      font-size: 14px;
+      font-weight: 600;
+      text-align: left;
+    }
+
+    .login-subtitle {
+      margin-bottom: 30px;
+      padding-bottom: 20px;
+      border-bottom: 2px solid #f0f0f0;
+    }
+
+    .login-subtitle h2 {
+      color: #1a4d2e;
+      margin: 0 0 8px 0;
+      font-size: 20px;
+      font-weight: 600;
+    }
+
+    .login-subtitle p {
+      color: #666;
+      margin: 0;
+      font-size: 14px;
+    }
+
+    .input-group {
+      margin-bottom: 20px;
+      text-align: left;
+    }
+
+    .input-group label {
+      display: block;
+      color: #333;
+      margin-bottom: 8px;
+      font-weight: 500;
+      font-size: 14px;
+    }
+
+    .input-group input {
+      width: 100%;
+      padding: 12px 16px;
+      border: 2px solid #e0e0e0;
+      border-radius: 10px;
+      font-size: 14px;
+      transition: border-color 0.3s;
+    }
+
+    .input-group input:focus {
+      outline: none;
+      border-color: #1a4d2e;
+    }
+
+    .btn-primary {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, #1a4d2e, #2d5f3f);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      margin-bottom: 20px;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 20px rgba(26, 77, 46, 0.4);
+    }
+
+    .demo-users {
+      background: #f8f9fa;
+      border-radius: 12px;
+      padding: 20px;
+      margin-top: 20px;
+      text-align: left;
+    }
+
+    .demo-users h4 {
+      color: #1a4d2e;
+      margin: 0 0 12px 0;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .demo-user {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px solid #e0e0e0;
+      font-size: 13px;
+    }
+
+    .demo-user:last-child {
+      border-bottom: none;
+    }
+
+    .user-role-badge {
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .badge-vendedor {
+      background: #e8f5e9;
+      color: #2e7d32;
+    }
+
+    .badge-gerente-piso {
+      background: #fff3e0;
+      color: #f57c00;
+    }
+
+    .badge-gerente-general {
+      background: #fce4ec;
+      color: #c2185b;
+    }
+
+    .hackathon-badge {
+      margin-top: 30px;
+      padding: 12px 20px;
+      background: linear-gradient(135deg, #1a4d2e, #2d5f3f);
+      color: white;
+      border-radius: 25px;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* Header */
+    .header {
+      background: white;
+      padding: 16px 24px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-shrink: 0;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .header-logo {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, #1a4d2e, #d4af37);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+    }
+
+    .header-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: #1a4d2e;
+    }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .user-avatar {
+      width: 36px;
+      height: 36px;
+      background: #d4af37;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 600;
+      margin-right: 12px;
+    }
+
+    .btn-logout {
+      padding: 8px 16px;
+      background: linear-gradient(135deg, #f44336, #d32f2f);
+      color: white;
+      border: none;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-logout:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 15px rgba(244, 67, 54, 0.3);
+    }
+
+    .user-details {
+      text-align: right;
+    }
+
+    .user-name {
+      font-weight: 600;
+      color: #333;
+      font-size: 14px;
+    }
+
+    .user-role {
+      font-size: 12px;
+      color: #666;
+    }
+
+    /* Main Content */
+    .main-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 24px;
+      background: #f5f5f5;
+    }
+
+    .welcome-section {
+      text-align: center;
+      margin-bottom: 32px;
+      padding: 24px;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+
+    .welcome-section h2 {
+      color: #1a4d2e;
+      margin: 0 0 8px 0;
+      font-size: 28px;
+      font-weight: 700;
+    }
+
+    .welcome-section p {
+      color: #666;
+      margin: 0;
+      font-size: 16px;
+    }
+
+    .role-display {
+      color: #d4af37;
+      font-weight: 600;
+    }
+
+    /* Dashboard Grid */
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .module-card {
+      background: white;
+      border-radius: 16px;
+      padding: 32px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+      cursor: pointer;
+      transition: transform 0.3s, box-shadow 0.3s;
+      text-align: center;
+      position: relative;
+    }
+
+    .module-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+    }
+
+    .module-card.disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      background: #f5f5f5;
+    }
+
+    .module-card.disabled:hover {
+      transform: none;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    }
+
+    .access-badge {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      padding: 4px 8px;
+      border-radius: 12px;
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .badge-full-access {
+      background: linear-gradient(135deg, #4caf50, #388e3c);
+      color: white;
+    }
+
+    .badge-restricted {
+      background: linear-gradient(135deg, #ff9800, #f57c00);
+      color: white;
+    }
+
+    .badge-no-access {
+      background: linear-gradient(135deg, #f44336, #d32f2f);
+      color: white;
+    }
+
+    .module-icon {
+      width: 80px;
+      height: 80px;
+      margin: 0 auto 20px;
+      background: linear-gradient(135deg, #1a4d2e, #2d5f3f);
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 40px;
+    }
+
+    .module-card h3 {
+      color: #1a4d2e;
+      margin: 0 0 12px 0;
+      font-size: 22px;
+    }
+
+    .module-card p {
+      color: #666;
+      margin: 0;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    /* Module Content */
+    .module-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+
+    .module-header h2 {
+      color: #1a4d2e;
+      margin: 0;
+      font-size: 28px;
+    }
+
+    .btn-back {
+      padding: 10px 20px;
+      background: #e0e0e0;
+      color: #333;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .btn-back:hover {
+      background: #d0d0d0;
+    }
+
+    .content-card {
+      background: white;
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+      margin-bottom: 24px;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .form-group label {
+      color: #333;
+      margin-bottom: 8px;
+      font-weight: 500;
+      font-size: 14px;
+    }
+
+    .form-group input,
+    .form-group select {
+      padding: 10px 14px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+
+    .btn-secondary {
+      padding: 12px 24px;
+      background: #d4af37;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .btn-secondary:hover {
+      background: #c49d2e;
+    }
+
+    /* Table */
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+
+    .data-table th {
+      background: #f5f5f5;
+      padding: 12px;
+      text-align: left;
+      font-weight: 600;
+      color: #333;
+      font-size: 13px;
+      border-bottom: 2px solid #e0e0e0;
+    }
+
+    .data-table td {
+      padding: 12px;
+      border-bottom: 1px solid #f0f0f0;
+      font-size: 13px;
+      color: #666;
+    }
+
+    .status-indicator {
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      margin-right: 8px;
+    }
+
+    .status-green { background: #4caf50; }
+    .status-yellow { background: #ffc107; }
+    .status-red { background: #f44336; }
+
+    /* Charts */
+    .chart-container {
+      height: 250px;
+      background: #f9f9f9;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .chart-bars {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-around;
+      height: 80%;
+      width: 90%;
+      gap: 12px;
+    }
+
+    .chart-bar {
+      flex: 1;
+      background: linear-gradient(to top, #1a4d2e, #2d5f3f);
+      border-radius: 8px 8px 0 0;
+      position: relative;
+      min-width: 40px;
+      transition: transform 0.3s;
+    }
+
+    .chart-bar:hover {
+      transform: scaleY(1.05);
+    }
+
+    .chart-label {
+      position: absolute;
+      bottom: -25px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 11px;
+      color: #666;
+      white-space: nowrap;
+    }
+
+    /* Stats Cards */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .stat-card {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+
+    .stat-value {
+      font-size: 32px;
+      font-weight: 700;
+      color: #1a4d2e;
+      margin: 8px 0;
+    }
+
+    .stat-label {
+      font-size: 13px;
+      color: #666;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* Chatbot */
+    .chatbot-button {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      width: 60px;
+      height: 60px;
+      background: linear-gradient(135deg, #d4af37, #c49d2e);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      cursor: pointer;
+      box-shadow: 0 4px 20px rgba(212, 175, 55, 0.4);
+      transition: transform 0.3s;
+      z-index: 1000;
+    }
+
+    .chatbot-button:hover {
+      transform: scale(1.1);
+    }
+
+    .chatbot-window {
+      position: fixed;
+      bottom: 100px;
+      right: 24px;
+      width: 350px;
+      height: 500px;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.2);
+      display: none;
+      flex-direction: column;
+      z-index: 1000;
+    }
+
+    .chatbot-window.active {
+      display: flex;
+      animation: slideUp 0.3s ease-out;
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .chatbot-header {
+      background: linear-gradient(135deg, #1a4d2e, #2d5f3f);
+      color: white;
+      padding: 16px;
+      border-radius: 16px 16px 0 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .chatbot-header h3 {
+      margin: 0;
+      font-size: 16px;
+    }
+
+    .chatbot-close {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 24px;
+      cursor: pointer;
+      padding: 0;
+      width: 30px;
+      height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .chatbot-messages {
+      flex: 1;
+      padding: 16px;
+      overflow-y: auto;
+      background: #f9f9f9;
+    }
+
+    .chat-message {
+      margin-bottom: 12px;
+      display: flex;
+      gap: 8px;
+    }
+
+    .chat-message.bot {
+      justify-content: flex-start;
+    }
+
+    .chat-message.user {
+      justify-content: flex-end;
+    }
+
+    .message-bubble {
+      max-width: 75%;
+      padding: 10px 14px;
+      border-radius: 12px;
+      font-size: 14px;
+      line-height: 1.4;
+    }
+
+    .chat-message.bot .message-bubble {
+      background: white;
+      color: #333;
+      border: 1px solid #e0e0e0;
+    }
+
+    .chat-message.user .message-bubble {
+      background: #1a4d2e;
+      color: white;
+    }
+
+    .chatbot-input {
+      padding: 16px;
+      border-top: 1px solid #e0e0e0;
+      display: flex;
+      gap: 8px;
+    }
+
+    .chatbot-input input {
+      flex: 1;
+      padding: 10px 14px;
+      border: 2px solid #e0e0e0;
+      border-radius: 20px;
+      font-size: 14px;
+    }
+
+    .chatbot-input button {
+      padding: 10px 20px;
+      background: #1a4d2e;
+      color: white;
+      border: none;
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    /* Footer */
+    .footer {
+      background: white;
+      padding: 16px 24px;
+      text-align: center;
+      color: #666;
+      font-size: 13px;
+      border-top: 1px solid #e0e0e0;
+      flex-shrink: 0;
+    }
+
+    .footer strong {
+      color: #1a4d2e;
+    }
+
+    /* Notification */
+    .notification {
+      position: fixed;
+      top: 80px;
+      right: 24px;
+      padding: 16px 24px;
+      border-radius: 8px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+      z-index: 2000;
+      font-weight: 600;
+      animation: slideInRight 0.3s ease-out;
+    }
+
+    .notification.success {
+      background: #4caf50;
+      color: white;
+    }
+
+    .notification.error {
+      background: #f44336;
+      color: white;
+    }
+
+    .notification.info {
+      background: #2196f3;
+      color: white;
+    }
+
+    @keyframes slideInRight {
+      from {
+        opacity: 0;
+        transform: translateX(100px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .dashboard-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .chatbot-window {
+        width: calc(100% - 48px);
+        right: 24px;
+        left: 24px;
+      }
+
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+  <script src="/_sdk/element_sdk.js"></script>
+  <style>@view-transition { navigation: auto; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+  <script src="https://cdn.tailwindcss.com" type="text/javascript"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+ </head>
+ <body><!-- Login Screen -->
+  <div class="screen active" id="loginScreen">
+   <div class="login-container">
+    <div class="login-background">
+     <div class="warehouse-pattern"></div>
+    </div>
+    <div class="login-box">
+     <div class="logo-container">
+      <div class="logo">
+       👞
+      </div>
+      <div class="logo-text">
+       <h1 id="appTitle">SmartInventory LDM</h1>
+       <p id="companyName">Calzando a México</p>
+      </div>
+     </div>
+     <div class="login-subtitle">
+      <h2 id="loginTitle">Sistema de Gestión Logística</h2>
+      <p id="welcomeMessage">Bienvenido al sistema de inventarios</p>
+     </div>
+     <form id="loginForm">
+      <div class="input-group"><label for="username">👤 Usuario</label> <input type="text" id="username" placeholder="Ingresa tu usuario" required>
+      </div>
+      <div class="input-group"><label for="password">🔒 Contraseña</label> <input type="password" id="password" placeholder="Ingresa tu contraseña" required>
+      </div><button type="submit" class="btn-primary">🔐 Iniciar Sesión</button>
+     </form>
+     <div class="demo-users">
+      <h4>👥 Usuarios de Demostración:</h4>
+      <div class="demo-user"><span><strong>vendedor1</strong> / pass123</span> <span class="user-role-badge badge-vendedor">Vendedor</span>
+      </div>
+      <div class="demo-user"><span><strong>gerente1</strong> / pass123</span> <span class="user-role-badge badge-gerente-piso">Gerente Piso</span>
+      </div>
+      <div class="demo-user"><span><strong>admin1</strong> / pass123</span> <span class="user-role-badge badge-gerente-general">Gerente General</span>
+      </div>
+     </div>
+     <div class="hackathon-badge"><span id="hackathonLabel">UPIICSA Hackathon LDM 2025</span>
+     </div>
+    </div>
+   </div>
+  </div><!-- Dashboard Screen -->
+  <div class="screen" id="dashboardScreen">
+   <div class="header">
+    <div class="header-left">
+     <div class="header-logo">
+      👞
+     </div>
+     <div class="header-title" id="headerTitle">
+      SmartInventory LDM
+     </div>
+    </div>
+    <div class="user-info">
+     <div class="user-details">
+      <div class="user-name" id="userName">
+       Usuario
+      </div>
+      <div class="user-role" id="userRole">
+       Rol
+      </div>
+     </div>
+     <div class="user-avatar" id="userAvatar">
+      U
+     </div><button class="btn-logout" onclick="logout()">🔙 Cerrar Sesión</button>
+    </div>
+   </div>
+   <div class="main-content">
+    <div class="welcome-section">
+     <h2 id="dashboardWelcome">¡Bienvenido!</h2>
+     <p id="dashboardSubtitle">Panel de control - Rol: <span class="role-display" id="roleDisplay">Usuario</span></p>
+    </div>
+    <div class="dashboard-grid" id="dashboardModules"><!-- Ventas -->
+     <div class="module-card" id="ventasModule" onclick="accessModule('ventas')">
+      <div class="access-badge" id="ventasBadge">
+       Acceso Total
+      </div>
+      <div class="module-icon">
+       🧾
+      </div>
+      <h3>Ventas</h3>
+      <p>Registra y consulta las ventas realizadas en tiempo real</p>
+     </div><!-- Inventario -->
+     <div class="module-card" id="inventarioModule" onclick="accessModule('inventario')">
+      <div class="access-badge" id="inventarioBadge">
+       Acceso Total
+      </div>
+      <div class="module-icon">
+       📦
+      </div>
+      <h3>Inventario</h3>
+      <p>Controla el stock teórico y físico de tus productos</p>
+     </div><!-- Arrivos -->
+     <div class="module-card" id="arrivosModule" onclick="accessModule('arrivos')">
+      <div class="access-badge" id="arrivosBadge">
+       Acceso Total
+      </div>
+      <div class="module-icon">
+       🚚
+      </div>
+      <h3>Arrivos</h3>
+      <p>Registra las entradas de mercancía desde CEDIS</p>
+     </div><!-- Stock Físico -->
+     <div class="module-card" id="stockModule" onclick="accessModule('stock')">
+      <div class="access-badge" id="stockBadge">
+       Sin Acceso
+      </div>
+      <div class="module-icon">
+       📋
+      </div>
+      <h3>Stock Físico</h3>
+      <p>Realiza conteos físicos y ajusta diferencias</p>
+     </div><!-- Reportes -->
+     <div class="module-card" id="reportesModule" onclick="accessModule('reportes')">
+      <div class="access-badge" id="reportesBadge">
+       Sin Acceso
+      </div>
+      <div class="module-icon">
+       📊
+      </div>
+      <h3>Reportes</h3>
+      <p>Analiza métricas y genera reportes detallados</p>
+     </div><!-- Chatbot -->
+     <div class="module-card" onclick="toggleChatbot()">
+      <div class="access-badge badge-full-access">
+       Disponible
+      </div>
+      <div class="module-icon">
+       💬
+      </div>
+      <h3>Chatbot IA</h3>
+      <p>Asistente inteligente con IBM Watson Assistant</p>
+     </div>
+    </div>
+   </div>
+   <div class="footer">
+    Desarrollado para <strong id="dashboardHackathonLabel">UPIICSA Hackathon LDM 2025</strong>
+   </div>
+  </div><!-- Ventas Screen -->
+  <div class="screen" id="ventasScreen">
+   <div class="header">
+    <div class="header-left">
+     <div class="header-logo">
+      👞
+     </div>
+     <div class="header-title">
+      SmartInventory LDM
+     </div>
+    </div>
+    <div class="user-info">
+     <div class="user-details">
+      <div class="user-name" id="ventasUserName">
+       Usuario
+      </div>
+      <div class="user-role" id="ventasUserRole">
+       Rol
+      </div>
+     </div>
+     <div class="user-avatar" id="ventasUserAvatar">
+      U
+     </div>
+    </div>
+   </div>
+   <div class="main-content">
+    <div class="module-header">
+     <h2>🧾 Módulo de Ventas</h2><button class="btn-back" onclick="showScreen('dashboardScreen')">🔙 Regresar al menú</button>
+    </div>
+    <div class="content-card">
+     <h3 style="color: #1a4d2e; margin-top: 0;">Registrar Nueva Venta</h3>
+     <form id="ventasForm">
+      <div class="form-row">
+       <div class="form-group"><label for="ventaFecha">Fecha</label> <input type="date" id="ventaFecha" required>
+       </div>
+       <div class="form-group"><label for="ventaProducto">Producto</label> <select id="ventaProducto" required> <option value="">Seleccionar...</option> <option>Zapato Casual Hombre - Talla 27</option> <option>Bota Dama - Talla 24</option> <option>Tenis Deportivo - Talla 26</option> <option>Sandalia Verano - Talla 25</option> </select>
+       </div>
+       <div class="form-group"><label for="ventaCantidad">Cantidad</label> <input type="number" id="ventaCantidad" min="1" placeholder="0" required>
+       </div>
+       <div class="form-group"><label for="ventaTienda">Tienda</label> <select id="ventaTienda" required> <option value="">Seleccionar...</option> <option>Tienda Centro</option> <option>Tienda Norte</option> <option>Tienda Sur</option> </select>
+       </div>
+      </div><button type="submit" class="btn-primary" style="width: auto;">Registrar Venta</button>
+     </form>
+    </div>
+    <div class="content-card">
+     <h3 style="color: #1a4d2e; margin-top: 0;">Ventas Recientes</h3>
+     <div class="chart-container">
+      <div class="chart-bars">
+       <div class="chart-bar" style="height: 75%;">
+        <div class="chart-label">
+         Lun
+        </div>
+       </div>
+       <div class="chart-bar" style="height: 60%;">
+        <div class="chart-label">
+         Mar
+        </div>
+       </div>
+       <div class="chart-bar" style="height: 85%;">
+        <div class="chart-label">
+         Mié
+        </div>
+       </div>
+       <div class="chart-bar" style="height: 70%;">
+        <div class="chart-label">
+         Jue
+        </div>
+       </div>
+       <div class="chart-bar" style="height: 90%;">
+        <div class="chart-label">
+         Vie
+        </div>
+       </div>
+       <div class="chart-bar" style="height: 95%;">
+        <div class="chart-label">
+         Sáb
+        </div>
+       </div>
+       <div class="chart-bar" style="height: 80%;">
+        <div class="chart-label">
+         Dom
+        </div>
+       </div>
+      </div>
+     </div>
+     <table class="data-table">
+      <thead>
+       <tr>
+        <th>Fecha</th>
+        <th>Producto</th>
+        <th>Cantidad</th>
+        <th>Tienda</th>
+        <th>Vendedor</th>
+       </tr>
+      </thead>
+      <tbody>
+       <tr>
+        <td>15/01/2025</td>
+        <td>Zapato Casual Hombre - Talla 27</td>
+        <td>2</td>
+        <td>Tienda Centro</td>
+        <td>Juan Pérez</td>
+       </tr>
+       <tr>
+        <td>15/01/2025</td>
+        <td>Bota Dama - Talla 24</td>
+        <td>1</td>
+        <td>Tienda Norte</td>
+        <td>Ana López</td>
+       </tr>
+       <tr>
+        <td>14/01/2025</td>
+        <td>Tenis Deportivo - Talla 26</td>
+        <td>3</td>
+        <td>Tienda Sur</td>
+        <td>Carlos Ruiz</td>
+       </tr>
+      </tbody>
+     </table>
+    </div>
+   </div>
+  </div><!-- Inventario Screen -->
+  <div class="screen" id="inventarioScreen">
+   <div class="header">
+    <div class="header-left">
+     <div class="header-logo">
+      👞
+     </div>
+     <div class="header-title">
+      SmartInventory LDM
+     </div>
+    </div>
+    <div class="user-info">
+     <div class="user-details">
+      <div class="user-name" id="inventarioUserName">
+       Usuario
+      </div>
+      <div class="user-role" id="inventarioUserRole">
+       Rol
+      </div>
+     </div>
+     <div class="user-avatar" id="inventarioUserAvatar">
+      U
+     </div>
+    </div>
+   </div>
+   <div class="main-content">
+    <div class="module-header">
+     <h2>📦 Módulo de Inventario</h2><button class="btn-back" onclick="showScreen('dashboardScreen')">🔙 Regresar al menú</button>
+    </div>
+    <div class="stats-grid">
+     <div class="stat-card">
+      <div class="stat-label">
+       Total Productos
+      </div>
+      <div class="stat-value">
+       1,247
+      </div>
+     </div>
+     <div class="stat-card">
+      <div class="stat-label">
+       Stock Bajo
+      </div>
+      <div class="stat-value" style="color: #f44336;">
+       23
+      </div>
+     </div>
+     <div class="stat-card">
+      <div class="stat-label">
+       Sobreinventario
+      </div>
+      <div class="stat-value" style="color: #ffc107;">
+       8
+      </div>
+     </div>
+     <div class="stat-card">
+      <div class="stat-label">
+       Días Cobertura
+      </div>
+      <div class="stat-value">
+       45
+      </div>
+     </div>
+    </div>
+    <div class="content-card">
+     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+      <h3 style="color: #1a4d2e; margin: 0;">Control de Inventario</h3><button class="btn-secondary" id="exportBtn">📥 Exportar Reporte</button>
+     </div>
+     <table class="data-table">
+      <thead>
+       <tr>
+        <th>Estado</th>
+        <th>Producto</th>
+        <th>Stock Inicial</th>
+        <th>Arrivos</th>
+        <th>Ventas</th>
+        <th>Stock Teórico</th>
+        <th>Stock Físico</th>
+        <th>Diferencia</th>
+       </tr>
+      </thead>
+      <tbody>
+       <tr>
+        <td><span class="status-indicator status-green"></span></td>
+        <td>Zapato Casual Hombre - Talla 27</td>
+        <td>150</td>
+        <td>50</td>
+        <td>45</td>
+        <td>155</td>
+        <td>155</td>
+        <td style="color: #4caf50;">0</td>
+       </tr>
+       <tr>
+        <td><span class="status-indicator status-yellow"></span></td>
+        <td>Bota Dama - Talla 24</td>
+        <td>80</td>
+        <td>20</td>
+        <td>65</td>
+        <td>35</td>
+        <td>33</td>
+        <td style="color: #ffc107;">-2</td>
+       </tr>
+       <tr>
+        <td><span class="status-indicator status-red"></span></td>
+        <td>Tenis Deportivo - Talla 26</td>
+        <td>120</td>
+        <td>30</td>
+        <td>135</td>
+        <td>15</td>
+        <td>12</td>
+        <td style="color: #f44336;">-3</td>
+       </tr>
+       <tr>
+        <td><span class="status-indicator status-green"></span></td>
+        <td>Sandalia Verano - Talla 25</td>
+        <td>200</td>
+        <td>100</td>
+        <td>80</td>
+        <td>220</td>
+        <td>220</td>
+        <td style="color: #4caf50;">0</td>
+       </tr>
+       <tr>
+        <td><span class="status-indicator status-yellow"></span></td>
+        <td>Mocasín Ejecutivo - Talla 28</td>
+        <td>60</td>
+        <td>15</td>
+        <td>50</td>
+        <td>25</td>
+        <td>24</td>
+        <td style="color: #ffc107;">-1</td>
+       </tr>
+      </tbody>
+     </table>
+    </div>
+   </div>
+  </div><!-- Arrivos Screen -->
+  <div class="screen" id="arrivosScreen">
+   <div class="header">
+    <div class="header-left">
+     <div class="header-logo">
+      👞
+     </div>
+     <div class="header-title">
+      SmartInventory LDM
+     </div>
+    </div>
+    <div class="user-info">
+     <div class="user-details">
+      <div class="user-name" id="arrivosUserName">
+       Usuario
+      </div>
+      <div class="user-role" id="arrivosUserRole">
+       Rol
+      </div>
+     </div>
+     <div class="user-avatar" id="arrivosUserAvatar">
+      U
+     </div>
+    </div>
+   </div>
+   <div class="main-content">
+    <div class="module-header">
+     <h2>🚚 Módulo de Arrivos</h2><button class="btn-back" onclick="showScreen('dashboardScreen')">🔙 Regresar al menú</button>
+    </div>
+    <div class="content-card">
+     <h3 style="color: #1a4d2e; margin-top: 0;">Registrar Nuevo Arrivo</h3>
+     <form id="arrivosForm">
+      <div class="form-row">
+       <div class="form-group"><label for="arrivoFecha">Fecha de Arrivo</label> <input type="date" id="arrivoFecha" required>
+       </div>
+       <div class="form-group"><label for="arrivoProducto">Producto</label> <select id="arrivoProducto" required> <option value="">Seleccionar...</option> <option>Zapato Casual Hombre - Talla 27</option> <option>Bota Dama - Talla 24</option> <option>Tenis Deportivo - Talla 26</option> <option>Sandalia Verano - Talla 25</option> </select>
+       </div>
+       <div class="form-group"><label for="arrivoCantidad">Cantidad</label> <input type="number" id="arrivoCantidad" min="1" placeholder="0" required>
+       </div>
+       <div class="form-group"><label for="arrivoCedis">CEDIS Origen</label> <select id="arrivoCedis" required> <option value="">Seleccionar...</option> <option>CEDIS Ciudad de México</option> <option>CEDIS Guadalajara</option> <option>CEDIS Monterrey</option> </select>
+       </div>
+      </div><button type="submit" class="btn-primary" style="width: auto;">Registrar Arrivo</button>
+     </form>
+    </div>
+    <div class="content-card">
+     <h3 style="color: #1a4d2e; margin-top: 0;">Historial de Entradas</h3>
+     <table class="data-table">
+      <thead>
+       <tr>
+        <th>Fecha</th>
+        <th>Producto</th>
+        <th>Cantidad</th>
+        <th>CEDIS Origen</th>
+        <th>Recibido por</th>
+        <th>Estado</th>
+       </tr>
+      </thead>
+      <tbody>
+       <tr>
+        <td>15/01/2025</td>
+        <td>Zapato Casual Hombre - Talla 27</td>
+        <td>50</td>
+        <td>CEDIS Ciudad de México</td>
+        <td>María González</td>
+        <td><span style="color: #4caf50; font-weight: 600;">✓ Recibido</span></td>
+       </tr>
+       <tr>
+        <td>14/01/2025</td>
+        <td>Bota Dama - Talla 24</td>
+        <td>20</td>
+        <td>CEDIS Guadalajara</td>
+        <td>Juan Pérez</td>
+        <td><span style="color: #4caf50; font-weight: 600;">✓ Recibido</span></td>
+       </tr>
+       <tr>
+        <td>13/01/2025</td>
+        <td>Tenis Deportivo - Talla 26</td>
+        <td>30</td>
+        <td>CEDIS Monterrey</td>
+        <td>Ana López</td>
+        <td><span style="color: #4caf50; font-weight: 600;">✓ Recibido</span></td>
+       </tr>
+       <tr>
+        <td>12/01/2025</td>
+        <td>Sandalia Verano - Talla 25</td>
+        <td>100</td>
+        <td>CEDIS Ciudad de México</td>
+        <td>Carlos Ruiz</td>
+        <td><span style="color: #4caf50; font-weight: 600;">✓ Recibido</span></td>
+       </tr>
+      </tbody>
+     </table>
+    </div>
+   </div>
+  </div><!-- Stock Físico Screen -->
+  <div class="screen" id="stockScreen">
+   <div class="header">
+    <div class="header-left">
+     <div class="header-logo">
+      👞
+     </div>
+     <div class="header-title">
+      SmartInventory LDM
+     </div>
+    </div>
+    <div class="user-info">
+     <div class="user-details">
+      <div class="user-name" id="stockUserName">
+       Usuario
+      </div>
+      <div class="user-role" id="stockUserRole">
+       Rol
+      </div>
+     </div>
+     <div class="user-avatar" id="stockUserAvatar">
+      U
+     </div>
+    </div>
+   </div>
+   <div class="main-content">
+    <div class="module-header">
+     <h2>📋 Módulo de Stock Físico</h2><button class="btn-back" onclick="showScreen('dashboardScreen')">🔙 Regresar al menú</button>
+    </div>
+    <div class="content-card">
+     <h3 style="color: #1a4d2e; margin-top: 0;">Registrar Conteo Físico</h3>
+     <form id="stockForm">
+      <div class="form-row">
+       <div class="form-group"><label for="stockProducto">Producto</label> <select id="stockProducto" required> <option value="">Seleccionar...</option> <option>Zapato Casual Hombre - Talla 27</option> <option>Bota Dama - Talla 24</option> <option>Tenis Deportivo - Talla 26</option> <option>Sandalia Verano - Talla 25</option> </select>
+       </div>
+       <div class="form-group"><label for="stockCantidad">Cantidad Contada</label> <input type="number" id="stockCantidad" min="0" placeholder="0" required>
+       </div>
+       <div class="form-group"><label for="stockFecha">Fecha de Conteo</label> <input type="date" id="stockFecha" required>
+       </div>
+      </div><button type="submit" class="btn-primary" style="width: auto;">Registrar Conteo</button>
+     </form>
+    </div>
+    <div class="content-card">
+     <h3 style="color: #1a4d2e; margin-top: 0;">Comparación Stock Teórico vs Físico</h3>
+     <div style="margin: 30px 0;">
+      <div style="margin-bottom: 20px;">
+       <div style="display: flex; justify-content: space-between; margin-bottom: 8px;"><span style="font-weight: 600; color: #333;">Zapato Casual Hombre - Talla 27</span> <span style="font-weight: 600; color: #4caf50;">Diferencia: 0</span>
+       </div>
+       <div style="display: flex; gap: 10px; align-items: center;">
+        <div style="flex: 1; background: #e0e0e0; height: 30px; border-radius: 6px; position: relative; overflow: hidden;">
+         <div style="width: 100%; height: 100%; background: linear-gradient(90deg, #1a4d2e, #2d5f3f); border-radius: 6px;"></div><span style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: white; font-size: 12px; font-weight: 600;">Teórico: 155</span>
+        </div>
+        <div style="flex: 1; background: #e0e0e0; height: 30px; border-radius: 6px; position: relative; overflow: hidden;">
+         <div style="width: 100%; height: 100%; background: linear-gradient(90deg, #d4af37, #c49d2e); border-radius: 6px;"></div><span style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: white; font-size: 12px; font-weight: 600;">Físico: 155</span>
+        </div>
+       </div>
+      </div>
+      <div style="margin-bottom: 20px;">
+       <div style="display: flex; justify-content: space-between; margin-bottom: 8px;"><span style="font-weight: 600; color: #333;">Bota Dama - Talla 24</span> <span style="font-weight: 600; color: #ffc107;">Diferencia: -2</span>
+       </div>
+       <div style="display: flex; gap: 10px; align-items: center;">
+        <div style="flex: 1; background: #e0e0e0; height: 30px; border-radius: 6px; position: relative; overflow: hidden;">
+         <div style="width: 100%; height: 100%; background: linear-gradient(90deg, #1a4d2e, #2d5f3f); border-radius: 6px;"></div><span style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: white; font-size: 12px; font-weight: 600;">Teórico: 35</span>
+        </div>
+        <div style="flex: 1; background: #e0e0e0; height: 30px; border-radius: 6px; position: relative; overflow: hidden;">
+         <div style="width: 94%; height: 100%; background: linear-gradient(90deg, #d4af37, #c49d2e); border-radius: 6px;"></div><span style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: white; font-size: 12px; font-weight: 600;">Físico: 33</span>
+        </div>
+       </div>
+      </div>
+      <div style="margin-bottom: 20px;">
+       <div style="display: flex; justify-content: space-between; margin-bottom: 8px;"><span style="font-weight: 600; color: #333;">Tenis Deportivo - Talla 26</span> <span style="font-weight: 600; color: #f44336;">Diferencia: -3</span>
+       </div>
+       <div style="display: flex; gap: 10px; align-items: center;">
+        <div style="flex: 1; background: #e0e0e0; height: 30px; border-radius: 6px; position: relative; overflow: hidden;">
+         <div style="width: 100%; height: 100%; background: linear-gradient(90deg, #1a4d2e, #2d5f3f); border-radius: 6px;"></div><span style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: white; font-size: 12px; font-weight: 600;">Teórico: 15</span>
+        </div>
+        <div style="flex: 1; background: #e0e0e0; height: 30px; border-radius: 6px; position: relative; overflow: hidden;">
+         <div style="width: 80%; height: 100%; background: linear-gradient(90deg, #d4af37, #c49d2e); border-radius: 6px;"></div><span style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: white; font-size: 12px; font-weight: 600;">Físico: 12</span>
+        </div>
+       </div>
+      </div>
+     </div>
+    </div>
+   </div>
+  </div><!-- Reportes Screen -->
+  <div class="screen" id="reportesScreen">
+   <div class="header">
+    <div class="header-left">
+     <div class="header-logo">
+      👞
+     </div>
+     <div class="header-title">
+      SmartInventory LDM
+     </div>
+    </div>
+    <div class="user-info">
+     <div class="user-details">
+      <div class="user-name" id="reportesUserName">
+       Usuario
+      </div>
+      <div class="user-role" id="reportesUserRole">
+       Rol
+      </div>
+     </div>
+     <div class="user-avatar" id="reportesUserAvatar">
+      U
+     </div>
+    </div>
+   </div>
+   <div class="main-content">
+    <div class="module-header">
+     <h2>📊 Dashboard de Reportes</h2><button class="btn-back" onclick="showScreen('dashboardScreen')">🔙 Regresar al menú</button>
+    </div>
+    <div class="stats-grid">
+     <div class="stat-card">
+      <div class="stat-label">
+       Rotación Promedio
+      </div>
+      <div class="stat-value">
+       8.5x
+      </div>
+     </div>
+     <div class="stat-card">
+      <div class="stat-label">
+       Días Cobertura
+      </div>
+      <div class="stat-value">
+       45
+      </div>
+     </div>
+     <div class="stat-card">
+      <div class="stat-label">
+       Sobreinventario
+      </div>
+      <div class="stat-value" style="color: #ffc107;">
+       8
+      </div>
+     </div>
+     <div class="stat-card">
+      <div class="stat-label">
+       Precisión Inventario
+      </div>
+      <div class="stat-value">
+       97.2%
+      </div>
+     </div>
+    </div>
+    <div class="content-card">
+     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+      <h3 style="color: #1a4d2e; margin: 0;">Rotación de Inventario</h3><button class="btn-secondary">📄 Descargar PDF</button>
+     </div>
+     <div class="chart-container">
+      <div class="chart-bars">
+       <div class="chart-bar" style="height: 85%;">
+        <div class="chart-label">
+         Ene
+        </div>
+       </div>
+       <div class="chart-bar" style="height: 78%;">
+        <div class="chart-label">
+         Feb
+        </div>
+       </div>
+       <div class="chart-bar" style="height: 92%;">
+        <div class="chart-label">
+         Mar
+        </div>
+       </div>
+       <div class="chart-bar" style="height: 88%;">
+        <div class="chart-label">
+         Abr
+        </div>
+       </div>
+       <div class="chart-bar" style="height: 95%;">
+        <div class="chart-label">
+         May
+        </div>
+       </div>
+       <div class="chart-bar" style="height: 82%;">
+        <div class="chart-label">
+         Jun
+        </div>
+       </div>
+      </div>
+     </div>
+    </div>
+    <div class="content-card">
+     <h3 style="color: #1a4d2e; margin-top: 0;">Top 5 Productos Más Vendidos</h3>
+     <table class="data-table">
+      <thead>
+       <tr>
+        <th>#</th>
+        <th>Producto</th>
+        <th>Unidades Vendidas</th>
+        <th>Rotación</th>
+        <th>Tendencia</th>
+       </tr>
+      </thead>
+      <tbody>
+       <tr>
+        <td style="font-weight: 700; color: #d4af37;">1</td>
+        <td>Tenis Deportivo - Talla 26</td>
+        <td>135</td>
+        <td>12.5x</td>
+        <td style="color: #4caf50;">↑ 15%</td>
+       </tr>
+       <tr>
+        <td style="font-weight: 700; color: #d4af37;">2</td>
+        <td>Sandalia Verano - Talla 25</td>
+        <td>120</td>
+        <td>10.8x</td>
+        <td style="color: #4caf50;">↑ 8%</td>
+       </tr>
+       <tr>
+        <td style="font-weight: 700; color: #d4af37;">3</td>
+        <td>Zapato Casual Hombre - Talla 27</td>
+        <td>95</td>
+        <td>9.2x</td>
+        <td style="color: #4caf50;">↑ 5%</td>
+       </tr>
+       <tr>
+        <td style="font-weight: 700; color: #d4af37;">4</td>
+        <td>Bota Dama - Talla 24</td>
+        <td>85</td>
+        <td>8.5x</td>
+        <td style="color: #666;">→ 0%</td>
+       </tr>
+       <tr>
+        <td style="font-weight: 700; color: #d4af37;">5</td>
+        <td>Mocasín Ejecutivo - Talla 28</td>
+        <td>72</td>
+        <td>7.8x</td>
+        <td style="color: #f44336;">↓ 3%</td>
+       </tr>
+      </tbody>
+     </table>
+    </div>
+    <div class="content-card">
+     <h3 style="color: #1a4d2e; margin-top: 0;">Productos con Sobreinventario</h3>
+     <table class="data-table">
+      <thead>
+       <tr>
+        <th>Producto</th>
+        <th>Stock Actual</th>
+        <th>Días Cobertura</th>
+        <th>Recomendación</th>
+       </tr>
+      </thead>
+      <tbody>
+       <tr>
+        <td>Zapato Formal - Talla 29</td>
+        <td>180</td>
+        <td style="color: #f44336; font-weight: 600;">120 días</td>
+        <td style="color: #f44336;">Reducir pedidos</td>
+       </tr>
+       <tr>
+        <td>Sandalia Playa - Talla 23</td>
+        <td>150</td>
+        <td style="color: #ffc107; font-weight: 600;">90 días</td>
+        <td style="color: #ffc107;">Promocionar</td>
+       </tr>
+       <tr>
+        <td>Bota Invierno - Talla 26</td>
+        <td>140</td>
+        <td style="color: #ffc107; font-weight: 600;">85 días</td>
+        <td style="color: #ffc107;">Promocionar</td>
+       </tr>
+      </tbody>
+     </table>
+    </div>
+   </div>
+  </div><!-- Chatbot -->
+  <div class="chatbot-button" onclick="toggleChatbot()">
+   💬
+  </div>
+  <div class="chatbot-window" id="chatbotWindow">
+   <div class="chatbot-header">
+    <h3>🤖 Asistente IA - IBM Watson</h3><button class="chatbot-close" onclick="toggleChatbot()">×</button>
+   </div>
+   <div class="chatbot-messages" id="chatMessages">
+    <div class="chat-message bot">
+     <div class="message-bubble">
+      ¡Hola! Soy tu asistente inteligente de SmartInventory. ¿En qué puedo ayudarte hoy?
+     </div>
+    </div>
+   </div>
+   <div class="chatbot-input"><input type="text" id="chatInput" placeholder="Escribe tu pregunta..."> <button onclick="sendMessage()">Enviar</button>
+   </div>
+  </div>
+  <script>
+    const defaultConfig = {
+      app_title: "SmartInventory LDM",
+      company_name: "Calzando a México",
+      hackathon_label: "UPIICSA Hackathon LDM 2025",
+      login_title: "Sistema de Gestión Logística",
+      welcome_message: "Bienvenido al sistema de inventarios"
+    };
+
+    let config = { ...defaultConfig };
+    let currentUser = null;
+
+    // User roles and permissions
+    const userRoles = {
+      'vendedor1': {
+        name: 'Juan Pérez',
+        role: 'Vendedor',
+        avatar: 'JP',
+        permissions: {
+          ventas: 'full',
+          inventario: 'read',
+          arrivos: 'full',
+          stock: 'none',
+          reportes: 'none'
+        }
+      },
+      'gerente1': {
+        name: 'Ana López',
+        role: 'Gerente de Piso',
+        avatar: 'AL',
+        permissions: {
+          ventas: 'full',
+          inventario: 'full',
+          arrivos: 'full',
+          stock: 'full',
+          reportes: 'restricted'
+        }
+      },
+      'admin1': {
+        name: 'María González',
+        role: 'Gerente General',
+        avatar: 'MG',
+        permissions: {
+          ventas: 'full',
+          inventario: 'full',
+          arrivos: 'full',
+          stock: 'full',
+          reportes: 'full'
+        }
+      }
+    };
+
+    function showScreen(screenId) {
+      document.querySelectorAll('.screen').forEach(screen => {
+        screen.classList.remove('active');
+      });
+      document.getElementById(screenId).classList.add('active');
+    }
+
+    function showNotification(message, type = 'success') {
+      const notification = document.createElement('div');
+      notification.className = `notification ${type}`;
+      notification.textContent = message;
+      document.body.appendChild(notification);
+      
+      setTimeout(() => {
+        notification.style.animation = 'fadeOut 0.3s ease-out';
+        setTimeout(() => notification.remove(), 300);
+      }, 3000);
+    }
+
+    function updateUserInfo(user) {
+      const userElements = [
+        { name: 'userName', role: 'userRole', avatar: 'userAvatar' },
+        { name: 'ventasUserName', role: 'ventasUserRole', avatar: 'ventasUserAvatar' },
+        { name: 'inventarioUserName', role: 'inventarioUserRole', avatar: 'inventarioUserAvatar' },
+        { name: 'arrivosUserName', role: 'arrivosUserRole', avatar: 'arrivosUserAvatar' },
+        { name: 'stockUserName', role: 'stockUserRole', avatar: 'stockUserAvatar' },
+        { name: 'reportesUserName', role: 'reportesUserRole', avatar: 'reportesUserAvatar' }
+      ];
+
+      userElements.forEach(elements => {
+        const nameEl = document.getElementById(elements.name);
+        const roleEl = document.getElementById(elements.role);
+        const avatarEl = document.getElementById(elements.avatar);
+        
+        if (nameEl) nameEl.textContent = user.name;
+        if (roleEl) roleEl.textContent = user.role;
+        if (avatarEl) avatarEl.textContent = user.avatar;
+      });
+
+      document.getElementById('dashboardWelcome').textContent = `¡Bienvenido, ${user.name}!`;
+      document.getElementById('roleDisplay').textContent = user.role;
+    }
+
+    function updateModuleAccess(permissions) {
+      const modules = ['ventas', 'inventario', 'arrivos', 'stock', 'reportes'];
+      
+      modules.forEach(module => {
+        const moduleCard = document.getElementById(`${module}Module`);
+        const badge = document.getElementById(`${module}Badge`);
+        const permission = permissions[module];
+        
+        if (moduleCard && badge) {
+          moduleCard.classList.remove('disabled');
+          
+          switch (permission) {
+            case 'full':
+              badge.textContent = 'Acceso Total';
+              badge.className = 'access-badge badge-full-access';
+              break;
+            case 'read':
+              badge.textContent = 'Solo Lectura';
+              badge.className = 'access-badge badge-restricted';
+              break;
+            case 'restricted':
+              badge.textContent = 'Limitado';
+              badge.className = 'access-badge badge-restricted';
+              break;
+            case 'none':
+              badge.textContent = 'Sin Acceso';
+              badge.className = 'access-badge badge-no-access';
+              moduleCard.classList.add('disabled');
+              break;
+          }
+        }
+      });
+
+      // Update export button visibility for inventory
+      const exportBtn = document.getElementById('exportBtn');
+      if (exportBtn) {
+        if (permissions.inventario === 'read') {
+          exportBtn.style.display = 'none';
+        } else {
+          exportBtn.style.display = 'inline-block';
+        }
+      }
+    }
+
+    function accessModule(module) {
+      if (!currentUser) return;
+      
+      const permission = currentUser.permissions[module];
+      
+      if (permission === 'none') {
+        showNotification(`❌ Acceso denegado. Tu rol "${currentUser.role}" no tiene permisos para este módulo.`, 'error');
+        return;
+      }
+      
+      if (permission === 'read' && module === 'inventario') {
+        showNotification(`ℹ️ Acceso en modo solo lectura para ${currentUser.role}`, 'info');
+      }
+      
+      showScreen(`${module}Screen`);
+      
+      // Actualizar reportes cuando se accede al módulo
+      if (module === 'reportes') {
+        setTimeout(() => updateReportes(), 100);
+      }
+    }
+
+    function login() {
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+      
+      if (!username || !password) {
+        showNotification('Por favor completa todos los campos', 'error');
+        return;
+      }
+
+      if (password !== 'pass123') {
+        showNotification('Contraseña incorrecta', 'error');
+        return;
+      }
+
+      const user = userRoles[username];
+      if (!user) {
+        showNotification('Usuario no encontrado', 'error');
+        return;
+      }
+
+      currentUser = user;
+      updateUserInfo(user);
+      updateModuleAccess(user.permissions);
+      
+      showScreen('dashboardScreen');
+      showNotification(`✅ Bienvenido, ${user.name} (${user.role})`, 'success');
+    }
+
+    function logout() {
+      currentUser = null;
+      showScreen('loginScreen');
+      document.getElementById('username').value = '';
+      document.getElementById('password').value = '';
+      showNotification('Sesión cerrada correctamente', 'success');
+    }
+
+    function toggleChatbot() {
+      const chatbot = document.getElementById('chatbotWindow');
+      chatbot.classList.toggle('active');
+    }
+
+    function sendMessage() {
+      const input = document.getElementById('chatInput');
+      const message = input.value.trim();
+      
+      if (message === '') return;
+
+      const messagesContainer = document.getElementById('chatMessages');
+      
+      const userMessage = document.createElement('div');
+      userMessage.className = 'chat-message user';
+      userMessage.innerHTML = `<div class="message-bubble">${message}</div>`;
+      messagesContainer.appendChild(userMessage);
+
+      input.value = '';
+
+      setTimeout(() => {
+        const botMessage = document.createElement('div');
+        botMessage.className = 'chat-message bot';
+        
+        let response = '';
+        const lowerMessage = message.toLowerCase();
+        const userRole = currentUser ? currentUser.role : 'Usuario';
+        
+        if (lowerMessage.includes('stock') || lowerMessage.includes('inventario')) {
+          if (userRole === 'Vendedor') {
+            response = 'Como vendedor, puedes consultar que hay 23 productos con stock bajo. Los críticos son: Tenis Deportivo Talla 26 (12 unidades) y Bota Dama Talla 24 (33 unidades).';
+          } else if (userRole === 'Gerente de Piso') {
+            response = 'Tienes 23 productos con stock bajo en tu tienda. Te recomiendo programar conteos físicos para Tenis Deportivo y Bota Dama. ¿Necesitas autorización para reabastecimiento?';
+          } else {
+            response = 'Análisis global: 23 productos con stock bajo, 8 con sobreinventario. Rotación promedio: 8.5x. Te sugiero revisar la estrategia de compras para optimizar el inventario.';
+          }
+        } else if (lowerMessage.includes('ventas') || lowerMessage.includes('vendido')) {
+          if (userRole === 'Vendedor') {
+            response = 'Tus ventas de hoy: 12 unidades. Meta diaria: 15 unidades. ¡Vas bien! El producto más vendido hoy es Tenis Deportivo con 3 unidades.';
+          } else if (userRole === 'Gerente de Piso') {
+            response = 'Ventas de tu tienda hoy: 47 unidades. Comparado con ayer: +8%. El equipo está cumpliendo las metas. Tenis Deportivo lidera con 8 unidades.';
+          } else {
+            response = 'Ventas globales hoy: 312 unidades. Crecimiento semanal: +12%. Tienda Centro lidera con 47 unidades. Proyección mensual: +15% vs mes anterior.';
+          }
+        } else if (lowerMessage.includes('reponer') || lowerMessage.includes('pedir')) {
+          if (userRole === 'Vendedor') {
+            response = 'Puedes solicitar reposición de: Tenis Deportivo Talla 26 (urgente), Bota Dama Talla 24. Contacta a tu gerente de piso para autorización.';
+          } else if (userRole === 'Gerente de Piso') {
+            response = 'Recomendaciones de reposición para tu tienda: Tenis Deportivo (50 unidades), Bota Dama (30 unidades). ¿Procedo con la solicitud al CEDIS?';
+          } else {
+            response = 'Análisis de reposición global: 15 productos requieren reabastecimiento urgente. CEDIS México tiene disponibilidad. ¿Autorizo las transferencias automáticas?';
+          }
+        } else if (lowerMessage.includes('predicción') || lowerMessage.includes('tendencia')) {
+          if (userRole === 'Gerente General') {
+            response = 'Predicciones IA para próximos 30 días: Tenis Deportivo +25% demanda, Sandalias -15% (temporada). Recomiendo ajustar pedidos y promociones estacionales.';
+          } else {
+            response = 'Las predicciones avanzadas están disponibles para Gerentes Generales. Puedo ayudarte con información básica de tendencias de tu área.';
+          }
+        } else {
+          response = `Hola ${currentUser ? currentUser.name : 'Usuario'}. Como ${userRole}, puedo ayudarte con información sobre inventario, ventas, reposición y alertas operativas. ¿Qué necesitas saber?`;
+        }
+        
+        botMessage.innerHTML = `<div class="message-bubble">${response}</div>`;
+        messagesContainer.appendChild(botMessage);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+      }, 1000);
+
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+
+    // Data storage
+    let ventasData = [
+      {
+        fecha: '15/01/2025',
+        producto: 'Zapato Casual Hombre - Talla 27',
+        cantidad: 2,
+        tienda: 'Tienda Centro',
+        vendedor: 'Juan Pérez'
+      },
+      {
+        fecha: '15/01/2025',
+        producto: 'Bota Dama - Talla 24',
+        cantidad: 1,
+        tienda: 'Tienda Norte',
+        vendedor: 'Ana López'
+      },
+      {
+        fecha: '14/01/2025',
+        producto: 'Tenis Deportivo - Talla 26',
+        cantidad: 3,
+        tienda: 'Tienda Sur',
+        vendedor: 'Carlos Ruiz'
+      }
+    ];
+
+    let arrivosData = [
+      {
+        fecha: '15/01/2025',
+        producto: 'Zapato Casual Hombre - Talla 27',
+        cantidad: 50,
+        cedis: 'CEDIS Ciudad de México',
+        recibidoPor: 'María González',
+        estado: '✓ Recibido'
+      },
+      {
+        fecha: '14/01/2025',
+        producto: 'Bota Dama - Talla 24',
+        cantidad: 20,
+        cedis: 'CEDIS Guadalajara',
+        recibidoPor: 'Juan Pérez',
+        estado: '✓ Recibido'
+      },
+      {
+        fecha: '13/01/2025',
+        producto: 'Tenis Deportivo - Talla 26',
+        cantidad: 30,
+        cedis: 'CEDIS Monterrey',
+        recibidoPor: 'Ana López',
+        estado: '✓ Recibido'
+      },
+      {
+        fecha: '12/01/2025',
+        producto: 'Sandalia Verano - Talla 25',
+        cantidad: 100,
+        cedis: 'CEDIS Ciudad de México',
+        recibidoPor: 'Carlos Ruiz',
+        estado: '✓ Recibido'
+      }
+    ];
+
+    let inventarioData = [
+      {
+        producto: 'Zapato Casual Hombre - Talla 27',
+        stockInicial: 150,
+        arrivos: 50,
+        ventas: 45,
+        stockTeorico: 155,
+        stockFisico: 155,
+        diferencia: 0,
+        estado: 'green'
+      },
+      {
+        producto: 'Bota Dama - Talla 24',
+        stockInicial: 80,
+        arrivos: 20,
+        ventas: 65,
+        stockTeorico: 35,
+        stockFisico: 33,
+        diferencia: -2,
+        estado: 'yellow'
+      },
+      {
+        producto: 'Tenis Deportivo - Talla 26',
+        stockInicial: 120,
+        arrivos: 30,
+        ventas: 135,
+        stockTeorico: 15,
+        stockFisico: 12,
+        diferencia: -3,
+        estado: 'red'
+      },
+      {
+        producto: 'Sandalia Verano - Talla 25',
+        stockInicial: 200,
+        arrivos: 100,
+        ventas: 80,
+        stockTeorico: 220,
+        stockFisico: 220,
+        diferencia: 0,
+        estado: 'green'
+      },
+      {
+        producto: 'Mocasín Ejecutivo - Talla 28',
+        stockInicial: 60,
+        arrivos: 15,
+        ventas: 50,
+        stockTeorico: 25,
+        stockFisico: 24,
+        diferencia: -1,
+        estado: 'yellow'
+      }
+    ];
+
+    function updateVentasTable() {
+      const tbody = document.querySelector('#ventasScreen .data-table tbody');
+      if (!tbody) return;
+      
+      tbody.innerHTML = '';
+      ventasData.slice(-10).reverse().forEach(venta => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${venta.fecha}</td>
+          <td>${venta.producto}</td>
+          <td>${venta.cantidad}</td>
+          <td>${venta.tienda}</td>
+          <td>${venta.vendedor}</td>
+        `;
+        tbody.appendChild(row);
+      });
+    }
+
+    function updateArrivosTable() {
+      const tbody = document.querySelector('#arrivosScreen .data-table tbody');
+      if (!tbody) return;
+      
+      tbody.innerHTML = '';
+      arrivosData.slice(-10).reverse().forEach(arrivo => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${arrivo.fecha}</td>
+          <td>${arrivo.producto}</td>
+          <td>${arrivo.cantidad}</td>
+          <td>${arrivo.cedis}</td>
+          <td>${arrivo.recibidoPor}</td>
+          <td><span style="color: #4caf50; font-weight: 600;">${arrivo.estado}</span></td>
+        `;
+        tbody.appendChild(row);
+      });
+    }
+
+    function updateInventarioTable() {
+      const tbody = document.querySelector('#inventarioScreen .data-table tbody');
+      if (!tbody) return;
+      
+      tbody.innerHTML = '';
+      inventarioData.forEach(item => {
+        const row = document.createElement('tr');
+        const statusClass = item.estado === 'green' ? 'status-green' : 
+                           item.estado === 'yellow' ? 'status-yellow' : 'status-red';
+        const diffColor = item.diferencia === 0 ? '#4caf50' : 
+                         item.diferencia > -3 ? '#ffc107' : '#f44336';
+        
+        row.innerHTML = `
+          <td><span class="status-indicator ${statusClass}"></span></td>
+          <td>${item.producto}</td>
+          <td>${item.stockInicial}</td>
+          <td>${item.arrivos}</td>
+          <td>${item.ventas}</td>
+          <td>${item.stockTeorico}</td>
+          <td>${item.stockFisico}</td>
+          <td style="color: ${diffColor};">${item.diferencia}</td>
+        `;
+        tbody.appendChild(row);
+      });
+    }
+
+    function updateInventarioStats() {
+      // Recalcular estadísticas basadas en los datos actuales
+      const totalProductos = inventarioData.length;
+      const stockBajo = inventarioData.filter(item => item.stockTeorico < 20).length;
+      const sobreinventario = inventarioData.filter(item => item.stockTeorico > 200).length;
+      
+      const statCards = document.querySelectorAll('#inventarioScreen .stat-card .stat-value');
+      if (statCards.length >= 4) {
+        statCards[0].textContent = totalProductos.toLocaleString();
+        statCards[1].textContent = stockBajo;
+        statCards[2].textContent = sobreinventario;
+      }
+    }
+
+    function registrarVenta() {
+      const fecha = document.getElementById('ventaFecha').value;
+      const producto = document.getElementById('ventaProducto').value;
+      const cantidad = parseInt(document.getElementById('ventaCantidad').value);
+      const tienda = document.getElementById('ventaTienda').value;
+      
+      if (!fecha || !producto || !cantidad || !tienda) {
+        showNotification('❌ Por favor completa todos los campos', 'error');
+        return;
+      }
+
+      // Formatear fecha
+      const fechaFormateada = new Date(fecha).toLocaleDateString('es-ES');
+      
+      // Agregar nueva venta
+      const nuevaVenta = {
+        fecha: fechaFormateada,
+        producto: producto,
+        cantidad: cantidad,
+        tienda: tienda,
+        vendedor: currentUser ? currentUser.name : 'Usuario'
+      };
+      
+      ventasData.push(nuevaVenta);
+      
+      // Actualizar inventario (reducir stock)
+      let itemInventario = inventarioData.find(item => item.producto === producto);
+      
+      // Si el producto no existe en inventario, crearlo
+      if (!itemInventario) {
+        itemInventario = {
+          producto: producto,
+          stockInicial: 0,
+          arrivos: 0,
+          ventas: 0,
+          stockTeorico: 0,
+          stockFisico: 0,
+          diferencia: 0,
+          estado: 'red'
+        };
+        inventarioData.push(itemInventario);
+      }
+      
+      // Actualizar ventas y stock teórico
+      itemInventario.ventas += cantidad;
+      itemInventario.stockTeorico = itemInventario.stockInicial + itemInventario.arrivos - itemInventario.ventas;
+      
+      // Actualizar estado basado en stock
+      if (itemInventario.stockTeorico < 20) {
+        itemInventario.estado = 'red';
+      } else if (itemInventario.stockTeorico < 50) {
+        itemInventario.estado = 'yellow';
+      } else {
+        itemInventario.estado = 'green';
+      }
+      
+      // Recalcular diferencia si hay stock físico
+      if (itemInventario.stockFisico > 0) {
+        itemInventario.diferencia = itemInventario.stockFisico - itemInventario.stockTeorico;
+      }
+      
+      updateVentasTable();
+      updateInventarioTable();
+      updateInventarioStats();
+      updateReportes();
+      
+      showNotification(`✅ Venta registrada: ${cantidad} ${producto}`, 'success');
+      document.getElementById('ventasForm').reset();
+      document.getElementById('ventaFecha').value = new Date().toISOString().split('T')[0];
+    }
+
+    function registrarArrivo() {
+      const fecha = document.getElementById('arrivoFecha').value;
+      const producto = document.getElementById('arrivoProducto').value;
+      const cantidad = parseInt(document.getElementById('arrivoCantidad').value);
+      const cedis = document.getElementById('arrivoCedis').value;
+      
+      if (!fecha || !producto || !cantidad || !cedis) {
+        showNotification('❌ Por favor completa todos los campos', 'error');
+        return;
+      }
+
+      // Formatear fecha
+      const fechaFormateada = new Date(fecha).toLocaleDateString('es-ES');
+      
+      // Agregar nuevo arrivo
+      const nuevoArrivo = {
+        fecha: fechaFormateada,
+        producto: producto,
+        cantidad: cantidad,
+        cedis: cedis,
+        recibidoPor: currentUser ? currentUser.name : 'Usuario',
+        estado: '✓ Recibido'
+      };
+      
+      arrivosData.push(nuevoArrivo);
+      
+      // Actualizar inventario (aumentar stock)
+      let itemInventario = inventarioData.find(item => item.producto === producto);
+      
+      // Si el producto no existe en inventario, crearlo
+      if (!itemInventario) {
+        itemInventario = {
+          producto: producto,
+          stockInicial: 0,
+          arrivos: 0,
+          ventas: 0,
+          stockTeorico: 0,
+          stockFisico: 0,
+          diferencia: 0,
+          estado: 'green'
+        };
+        inventarioData.push(itemInventario);
+      }
+      
+      // Actualizar arrivos y stock teórico
+      itemInventario.arrivos += cantidad;
+      itemInventario.stockTeorico = itemInventario.stockInicial + itemInventario.arrivos - itemInventario.ventas;
+      
+      // Actualizar estado basado en stock
+      if (itemInventario.stockTeorico < 20) {
+        itemInventario.estado = 'red';
+      } else if (itemInventario.stockTeorico < 50) {
+        itemInventario.estado = 'yellow';
+      } else {
+        itemInventario.estado = 'green';
+      }
+      
+      // Recalcular diferencia si hay stock físico
+      if (itemInventario.stockFisico > 0) {
+        itemInventario.diferencia = itemInventario.stockFisico - itemInventario.stockTeorico;
+      }
+      
+      updateArrivosTable();
+      updateInventarioTable();
+      updateInventarioStats();
+      updateReportes();
+      
+      showNotification(`✅ Arrivo registrado: ${cantidad} ${producto} desde ${cedis}`, 'success');
+      document.getElementById('arrivosForm').reset();
+      document.getElementById('arrivoFecha').value = new Date().toISOString().split('T')[0];
+    }
+
+    function registrarConteoFisico() {
+      const producto = document.getElementById('stockProducto').value;
+      const cantidadContada = parseInt(document.getElementById('stockCantidad').value);
+      const fecha = document.getElementById('stockFecha').value;
+      
+      if (!producto || cantidadContada === undefined || !fecha) {
+        showNotification('❌ Por favor completa todos los campos', 'error');
+        return;
+      }
+
+      // Actualizar stock físico en inventario
+      let itemInventario = inventarioData.find(item => item.producto === producto);
+      
+      // Si el producto no existe en inventario, crearlo
+      if (!itemInventario) {
+        itemInventario = {
+          producto: producto,
+          stockInicial: 0,
+          arrivos: 0,
+          ventas: 0,
+          stockTeorico: cantidadContada,
+          stockFisico: cantidadContada,
+          diferencia: 0,
+          estado: 'green'
+        };
+        inventarioData.push(itemInventario);
+      } else {
+        const stockAnterior = itemInventario.stockFisico;
+        itemInventario.stockFisico = cantidadContada;
+        itemInventario.diferencia = itemInventario.stockFisico - itemInventario.stockTeorico;
+        
+        // Actualizar estado basado en diferencia
+        if (Math.abs(itemInventario.diferencia) === 0) {
+          // Sin diferencia, mantener estado basado en stock
+          if (itemInventario.stockTeorico < 20) {
+            itemInventario.estado = 'red';
+          } else if (itemInventario.stockTeorico < 50) {
+            itemInventario.estado = 'yellow';
+          } else {
+            itemInventario.estado = 'green';
+          }
+        } else if (Math.abs(itemInventario.diferencia) <= 2) {
+          itemInventario.estado = 'yellow';
+        } else {
+          itemInventario.estado = 'red';
+        }
+      }
+      
+      updateInventarioTable();
+      updateInventarioStats();
+      updateReportes();
+      
+      const diferencia = itemInventario.diferencia;
+      const mensaje = diferencia === 0 ? 
+        `✅ Conteo registrado: ${producto} - Sin diferencias (${cantidadContada} unidades)` :
+        `✅ Conteo registrado: ${producto} - Diferencia: ${diferencia > 0 ? '+' : ''}${diferencia} unidades (Físico: ${cantidadContada}, Teórico: ${itemInventario.stockTeorico})`;
+      
+      showNotification(mensaje, 'success');
+      
+      document.getElementById('stockForm').reset();
+      document.getElementById('stockFecha').value = new Date().toISOString().split('T')[0];
+    }
+
+    function updateReportes() {
+      // Calcular estadísticas generales
+      const totalVentas = ventasData.reduce((sum, v) => sum + v.cantidad, 0);
+      const totalProductos = inventarioData.length;
+      const productosConStock = inventarioData.filter(item => item.stockTeorico > 0).length;
+      
+      // Calcular rotación promedio
+      let rotacionTotal = 0;
+      let productosConRotacion = 0;
+      inventarioData.forEach(item => {
+        // Calcular rotación basada en stock promedio o stock inicial
+        const stockPromedio = item.stockInicial > 0 ? item.stockInicial : 
+                             (item.stockTeorico + item.arrivos) / 2;
+        if (stockPromedio > 0 && item.ventas > 0) {
+          const rotacion = item.ventas / stockPromedio;
+          rotacionTotal += rotacion;
+          productosConRotacion++;
+        }
+      });
+      const rotacionPromedio = productosConRotacion > 0 ? (rotacionTotal / productosConRotacion).toFixed(1) : '0.0';
+      
+      // Calcular días de cobertura promedio
+      let diasCoberturaTotal = 0;
+      let productosConCobertura = 0;
+      inventarioData.forEach(item => {
+        if (item.ventas > 0 && item.stockTeorico > 0) {
+          // Días de cobertura = (Stock actual / Ventas promedio diarias)
+          // Asumiendo ventas en los últimos 30 días
+          const ventasDiarias = item.ventas / 30;
+          if (ventasDiarias > 0) {
+            const diasCobertura = Math.round(item.stockTeorico / ventasDiarias);
+            diasCoberturaTotal += diasCobertura;
+            productosConCobertura++;
+          }
+        }
+      });
+      const diasCoberturaPromedio = productosConCobertura > 0 ? Math.round(diasCoberturaTotal / productosConCobertura) : 0;
+      
+      // Contar sobreinventario (productos con más de 90 días de cobertura)
+      const sobreinventario = inventarioData.filter(item => {
+        if (item.ventas > 0 && item.stockTeorico > 0) {
+          const ventasDiarias = item.ventas / 30;
+          if (ventasDiarias > 0) {
+            const diasCobertura = item.stockTeorico / ventasDiarias;
+            return diasCobertura > 90;
+          }
+        }
+        return false;
+      }).length;
+      
+      // Calcular precisión del inventario (productos sin diferencia / total productos con conteo físico)
+      const productosConConteo = inventarioData.filter(item => item.stockFisico > 0);
+      const productosSinDiferencia = productosConConteo.filter(item => Math.abs(item.diferencia) === 0).length;
+      const precision = productosConConteo.length > 0 
+        ? ((productosSinDiferencia / productosConConteo.length) * 100).toFixed(1) 
+        : '0.0';
+      
+      // Actualizar estadísticas en el dashboard de reportes
+      const reportesStats = document.querySelectorAll('#reportesScreen .stat-card .stat-value');
+      if (reportesStats.length >= 4) {
+        reportesStats[0].textContent = `${rotacionPromedio}x`;
+        reportesStats[1].textContent = diasCoberturaPromedio;
+        reportesStats[2].textContent = sobreinventario;
+        reportesStats[3].textContent = `${precision}%`;
+      }
+      
+      // Calcular top 5 productos más vendidos
+      const ventasPorProducto = {};
+      ventasData.forEach(venta => {
+        if (!ventasPorProducto[venta.producto]) {
+          ventasPorProducto[venta.producto] = 0;
+        }
+        ventasPorProducto[venta.producto] += venta.cantidad;
+      });
+      
+      const productosVendidos = Object.entries(ventasPorProducto)
+        .map(([producto, cantidad]) => {
+          const itemInventario = inventarioData.find(item => item.producto === producto);
+          // Calcular stock promedio para rotación
+          let stockPromedio = cantidad;
+          if (itemInventario) {
+            stockPromedio = itemInventario.stockInicial > 0 ? itemInventario.stockInicial : 
+                           (itemInventario.stockTeorico + itemInventario.arrivos) / 2;
+            if (stockPromedio === 0) stockPromedio = cantidad;
+          }
+          const rotacion = stockPromedio > 0 ? (cantidad / stockPromedio).toFixed(1) : '0.0';
+          
+          // Calcular tendencia (simplificado: comparar con promedio)
+          const promedioVentas = Object.keys(ventasPorProducto).length > 0 
+            ? totalVentas / Object.keys(ventasPorProducto).length 
+            : cantidad;
+          const diferencia = cantidad - promedioVentas;
+          const porcentaje = promedioVentas > 0 ? ((diferencia / promedioVentas) * 100).toFixed(0) : 0;
+          let tendencia = '→ 0%';
+          let colorTendencia = '#666';
+          if (Math.abs(porcentaje) > 5) {
+            if (porcentaje > 0) {
+              tendencia = `↑ ${porcentaje}%`;
+              colorTendencia = '#4caf50';
+            } else {
+              tendencia = `↓ ${Math.abs(porcentaje)}%`;
+              colorTendencia = '#f44336';
+            }
+          }
+          
+          return { producto, cantidad, rotacion, tendencia, colorTendencia };
+        })
+        .sort((a, b) => b.cantidad - a.cantidad)
+        .slice(0, 5);
+      
+      // Actualizar tabla de top 5 productos más vendidos
+      const topVendidosTbody = document.querySelector('#reportesScreen .content-card:nth-of-type(2) .data-table tbody');
+      if (topVendidosTbody) {
+        topVendidosTbody.innerHTML = '';
+        productosVendidos.forEach((item, index) => {
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td style="font-weight: 700; color: #d4af37;">${index + 1}</td>
+            <td>${item.producto}</td>
+            <td>${item.cantidad}</td>
+            <td>${item.rotacion}x</td>
+            <td style="color: ${item.colorTendencia};">${item.tendencia}</td>
+          `;
+          topVendidosTbody.appendChild(row);
+        });
+      }
+      
+      // Calcular productos con sobreinventario
+      const productosSobreinventario = inventarioData
+        .map(item => {
+          if (item.ventas > 0 && item.stockTeorico > 0) {
+            const ventasDiarias = item.ventas / 30;
+            if (ventasDiarias > 0) {
+              const diasCobertura = Math.round(item.stockTeorico / ventasDiarias);
+              if (diasCobertura > 60) {
+                let recomendacion = 'Promocionar';
+                let colorRecomendacion = '#ffc107';
+                if (diasCobertura > 120) {
+                  recomendacion = 'Reducir pedidos';
+                  colorRecomendacion = '#f44336';
+                }
+                return {
+                  producto: item.producto,
+                  stockActual: item.stockTeorico,
+                  diasCobertura: diasCobertura,
+                  recomendacion: recomendacion,
+                  colorRecomendacion: colorRecomendacion,
+                  colorDias: diasCobertura > 120 ? '#f44336' : '#ffc107'
+                };
+              }
+            }
+          }
+          return null;
+        })
+        .filter(item => item !== null)
+        .sort((a, b) => b.diasCobertura - a.diasCobertura)
+        .slice(0, 10);
+      
+      // Actualizar tabla de sobreinventario
+      const sobreinventarioTbody = document.querySelector('#reportesScreen .content-card:nth-of-type(3) .data-table tbody');
+      if (sobreinventarioTbody) {
+        sobreinventarioTbody.innerHTML = '';
+        if (productosSobreinventario.length === 0) {
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td colspan="4" style="text-align: center; color: #4caf50; font-weight: 600;">
+              ✅ No hay productos con sobreinventario
+            </td>
+          `;
+          sobreinventarioTbody.appendChild(row);
+        } else {
+          productosSobreinventario.forEach(item => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+              <td>${item.producto}</td>
+              <td>${item.stockActual}</td>
+              <td style="color: ${item.colorDias}; font-weight: 600;">${item.diasCobertura} días</td>
+              <td style="color: ${item.colorRecomendacion};">${item.recomendacion}</td>
+            `;
+            sobreinventarioTbody.appendChild(row);
+          });
+        }
+      }
+    }
+
+    // Event listeners
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      login();
+    });
+
+    document.getElementById('chatInput').addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        sendMessage();
+      }
+    });
+
+    document.getElementById('ventasForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      registrarVenta();
+    });
+
+    document.getElementById('arrivosForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      registrarArrivo();
+    });
+
+    document.getElementById('stockForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      registrarConteoFisico();
+    });
+
+    // Set current date for date inputs and initialize tables
+    const today = new Date().toISOString().split('T')[0];
+    document.addEventListener('DOMContentLoaded', function() {
+      const dateInputs = document.querySelectorAll('input[type="date"]');
+      dateInputs.forEach(input => {
+        input.value = today;
+      });
+      
+      // Initialize tables with current data
+      updateVentasTable();
+      updateArrivosTable();
+      updateInventarioTable();
+      updateInventarioStats();
+      updateReportes();
+    });
+
+    async function onConfigChange(newConfig) {
+      document.getElementById('appTitle').textContent = newConfig.app_title || defaultConfig.app_title;
+      document.getElementById('companyName').textContent = newConfig.company_name || defaultConfig.company_name;
+      document.getElementById('hackathonLabel').textContent = newConfig.hackathon_label || defaultConfig.hackathon_label;
+      document.getElementById('loginTitle').textContent = newConfig.login_title || defaultConfig.login_title;
+      document.getElementById('welcomeMessage').textContent = newConfig.welcome_message || defaultConfig.welcome_message;
+      
+      document.getElementById('headerTitle').textContent = newConfig.app_title || defaultConfig.app_title;
+      document.getElementById('dashboardHackathonLabel').textContent = newConfig.hackathon_label || defaultConfig.hackathon_label;
+    }
+
+    if (window.elementSdk) {
+      window.elementSdk.init({
+        defaultConfig: defaultConfig,
+        onConfigChange: onConfigChange,
+        mapToCapabilities: (config) => ({
+          recolorables: [],
+          borderables: [],
+          fontEditable: undefined,
+          fontSizeable: undefined
+        }),
+        mapToEditPanelValues: (config) => new Map([
+          ["app_title", config.app_title || defaultConfig.app_title],
+          ["company_name", config.company_name || defaultConfig.company_name],
+          ["hackathon_label", config.hackathon_label || defaultConfig.hackathon_label],
+          ["login_title", config.login_title || defaultConfig.login_title],
+          ["welcome_message", config.welcome_message || defaultConfig.welcome_message]
+        ])
+      });
+    }
+  </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'99a712c2b2fde3b6',t:'MTc2MjQ1ODEzOC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
